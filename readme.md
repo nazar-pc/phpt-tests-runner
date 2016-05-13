@@ -65,7 +65,7 @@ Simply add dependency on `nazar-pc/phpt-tests-runner` to your project's `compose
 
 ```json
 {
-    "require_dev": {
+    "require-dev": {
         "nazar-pc/phpt-tests-runner": "1.*"
     }
 }
