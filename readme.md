@@ -73,18 +73,18 @@ Simply add dependency on `nazar-pc/phpt-tests-runner` to your project's `compose
 
 Then execute tests as following:
 ```
-vendor/bin/phpt-tests-tunner tests
+vendor/bin/phpt-tests-runner tests
 ```
 Or if you need environment variables to propagate into tests:
 ```
-php -d variables_order=EGPCS vendor/bin/phpt-tests-tunner tests
+php -d variables_order=EGPCS vendor/bin/phpt-tests-runner tests
 ```
 
 Alternatively you can install it globally using Composer like this:
 ```bash
-sudo COMPOSER_BIN_DIR=/usr/local/bin composer global require nazar-pc/phpt-tests-tunner
+sudo COMPOSER_BIN_DIR=/usr/local/bin composer global require nazar-pc/phpt-tests-runner
 ```
-`COMPOSER_BIN_DIR=/usr/local/bin` will instruct Composer to install binary to `/usr/local/bin` so that you'll be able to call just `phpt-tests-tunner` after installation.
+`COMPOSER_BIN_DIR=/usr/local/bin` will instruct Composer to install binary to `/usr/local/bin` so that you'll be able to call just `phpt-tests-runner` after installation.
 Alternatively you can skip it and add `~/.composer/vendor/bin/` to your PATH.
 
 ## Contribution
