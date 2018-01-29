@@ -95,7 +95,6 @@ function line ($text = '', $clean = false) {
  * @return string `skipped`, `success` or `error`
  */
 function run_test ($binary, $test_file, $base_text) {
-	$time = microtime(true);
 	out("<y>$base_text ...</y>");
 	$test_file = realpath($test_file);
 	@unlink("$test_file.exp");
@@ -107,7 +106,7 @@ function run_test ($binary, $test_file, $base_text) {
 	 */
 	if (!isset($parsed_test['FILE'])) {
 		line("<r>$base_text ERROR</r>", true);
-		line("--FILE-- section MUST be present");
+		line('--FILE-- section MUST be present');
 		return 'error';
 	}
 	$output_sections = ['EXPECT', 'EXPECTF', 'EXPECTREGEX'];
@@ -124,8 +123,8 @@ function run_test ($binary, $test_file, $base_text) {
 	];
 	if (isset($parsed_test['INI'])) {
 		foreach (explode("\n", trim($parsed_test['INI'])) as $line) {
-			list($key, $value) = explode('=', $line, 2);
-			$php_arguments[] = '-d '.trim($key).'='.trim($value);
+			list($key, $value) = array_map('trim', explode('=', $line, 2));
+			$php_arguments[] = "-d $key=$value";
 		}
 	}
 	$script_arguments = $parsed_test['ARGS'] ?? '';
@@ -138,8 +137,9 @@ function run_test ($binary, $test_file, $base_text) {
 			return 'skipped';
 		}
 	}
-	$output = rtrim(execute_code($binary, $working_dir, $parsed_test['FILE'], $php_arguments, $script_arguments, $test_file));
-	$result = compare_output(PHP_BINARY, $output, $base_text, $test_file, $php_arguments, $script_arguments, $parsed_test, $time);
+	$started_time = microtime(true);
+	$output       = rtrim(execute_code($binary, $working_dir, $parsed_test['FILE'], $php_arguments, $script_arguments, $test_file));
+	$result       = compare_output(PHP_BINARY, $output, $base_text, $test_file, $php_arguments, $script_arguments, $parsed_test, $started_time);
 	isset($parsed_test['CLEAN']) && execute_code($binary, $working_dir, $parsed_test['CLEAN'], $php_arguments, $script_arguments, $test_file);
 	return $result;
 }
@@ -180,7 +180,9 @@ function execute_code ($binary, $working_dir, $code, $php_arguments, $script_arg
 	$file = "$working_dir/__code.php";
 	file_put_contents($file, $code);
 	putenv("TEST_FILE=\"$test_file\"");
-	$output = shell_exec($binary.' '.implode(' ', $php_arguments).' -f '.escapeshellarg($file)." -- $script_arguments 2>&1");
+	$arguments     = implode(' ', $php_arguments);
+	$prepared_file = escapeshellarg($file);
+	$output        = shell_exec("$binary $arguments -f $prepared_file -- $script_arguments 2>&1");
 	unlink($file);
 	return $output;
 }
@@ -207,11 +209,12 @@ function time_since_started ($started) {
  * @return string `skipped`, `success` or `error`
  */
 function compare_output ($binary, $output, $base_text, $test_file, $php_arguments, $script_arguments, $parsed_test, $started_time) {
-	$working_dir = dirname($test_file);
+	$working_dir    = dirname($test_file);
+	$execution_time = time_since_started($started_time);
 	if (isset($parsed_test['EXPECT'])) {
 		$expect = rtrim(execute_code($binary, $working_dir, $parsed_test['EXPECT'], $php_arguments, $script_arguments, $test_file));
 		if ($expect === $output) {
-			line("<g>$base_text SUCCESS</g> ".time_since_started($started_time), true);
+			line("<g>$base_text SUCCESS</g> $execution_time", true);
 			isset($parsed_test['CLEAN']) && execute_code($binary, $working_dir, $parsed_test['CLEAN'], $php_arguments, $script_arguments, $test_file);
 			return 'success';
 		}
@@ -245,7 +248,7 @@ function compare_output ($binary, $output, $base_text, $test_file, $php_argument
 			preg_quote($expect, '/')
 		);
 		if (preg_match("/^$regex\$/s", $output)) {
-			line("<g>$base_text SUCCESS</g> ".time_since_started($started_time), true);
+			line("<g>$base_text SUCCESS</g> $execution_time", true);
 			isset($parsed_test['CLEAN']) && execute_code($binary, $working_dir, $parsed_test['CLEAN'], $php_arguments, $script_arguments, $test_file);
 			return 'success';
 		}
@@ -253,12 +256,12 @@ function compare_output ($binary, $output, $base_text, $test_file, $php_argument
 		$expect = rtrim(execute_code($binary, $working_dir, $parsed_test['EXPECREGEX'], $php_arguments, $script_arguments, $test_file));
 		$regex  = preg_quote($expect, '/');
 		if (preg_match("/^$regex\$/s", $output)) {
-			line("<g>$base_text SUCCESS</g> ".time_since_started($started_time), true);
+			line("<g>$base_text SUCCESS</g> $execution_time", true);
 			isset($parsed_test['CLEAN']) && execute_code($binary, $working_dir, $parsed_test['CLEAN'], $php_arguments, $script_arguments, $test_file);
 			return 'success';
 		}
 	}
-	line("<r>$base_text ERROR:</r> ".time_since_started($started_time), true);
+	line("<r>$base_text ERROR:</r> $execution_time", true);
 	$diff = preg_replace_callback(
 		'/^([-+]).*$/m',
 		function ($match) {
