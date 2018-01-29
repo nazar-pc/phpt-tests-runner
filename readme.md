@@ -4,11 +4,13 @@
 PHPT Tests runner
 
 Usage:
-  phpt-tests-runner [-h] [-b binary] [files] [directories]
+  phpt-tests-runner [-h] [-c] [-C] [-b binary] [files] [directories]
 
 Arguments:
   -h Print this help message
   -b Specify custom PHP binary to be used (current is used by default)
+  -c Force colored output
+  -C Force no colored output
 
 Examples:
   Execute tests from tests directory:
