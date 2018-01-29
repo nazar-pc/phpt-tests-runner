@@ -138,9 +138,12 @@ function run_test ($binary, $test_file, $base_text) {
 		}
 	}
 	$started_time = microtime(true);
-	$output       = rtrim(execute_code($binary, $working_dir, $parsed_test['FILE'], $php_arguments, $script_arguments, $test_file));
+	$output       = rtrim(execute_code($binary, $working_dir, $parsed_test['FILE'], $php_arguments, $script_arguments, $test_file, true));
 	$result       = compare_output(PHP_BINARY, $output, $base_text, $test_file, $php_arguments, $script_arguments, $parsed_test, $started_time);
 	isset($parsed_test['CLEAN']) && execute_code($binary, $working_dir, $parsed_test['CLEAN'], $php_arguments, $script_arguments, $test_file);
+	if ($result === 'success') {
+		unlink("$test_file.test_code.php");
+	}
 	return $result;
 }
 
@@ -173,17 +176,24 @@ function parse_test ($test_file) {
  * @param string[] $php_arguments
  * @param string   $script_arguments
  * @param string   $test_file
+ * @param bool     $keep_file
  *
  * @return string
  */
-function execute_code ($binary, $working_dir, $code, $php_arguments, $script_arguments, $test_file) {
-	$file = "$working_dir/__code.php";
-	file_put_contents($file, $code);
+function execute_code ($binary, $working_dir, $code, $php_arguments, $script_arguments, $test_file, $keep_file = false) {
+	if ($keep_file) {
+		$tmp_code_file = "$test_file.test_code.php";
+	} else {
+		$tmp_code_file = tempnam($working_dir, basename($test_file));
+	}
+	file_put_contents($tmp_code_file, $code);
 	putenv("TEST_FILE=\"$test_file\"");
 	$arguments     = implode(' ', $php_arguments);
-	$prepared_file = escapeshellarg($file);
+	$prepared_file = escapeshellarg($tmp_code_file);
 	$output        = shell_exec("$binary $arguments -f $prepared_file -- $script_arguments 2>&1");
-	unlink($file);
+	if (!$keep_file) {
+		unlink($tmp_code_file);
+	}
 	return $output;
 }
 
@@ -206,7 +216,7 @@ function time_since_started ($started) {
  * @param string[] $parsed_test
  * @param float    $started_time
  *
- * @return string `skipped`, `success` or `error`
+ * @return string `success` or `error`
  */
 function compare_output ($binary, $output, $base_text, $test_file, $php_arguments, $script_arguments, $parsed_test, $started_time) {
 	$working_dir    = dirname($test_file);
