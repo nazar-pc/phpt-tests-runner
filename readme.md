@@ -4,10 +4,11 @@
 PHPT Tests runner
 
 Usage:
-  phpt-tests-runner [-h] [files] [directories]
+  phpt-tests-runner [-h] [-b binary] [files] [directories]
 
 Arguments:
-  h Print this help message
+  -h Print this help message
+  -b Specify custom PHP binary to be used (current is used by default)
 
 Examples:
   Execute tests from tests directory:
@@ -91,4 +92,8 @@ Alternatively you can skip it and add `~/.composer/vendor/bin/` to your PATH.
 Feel free to create issues and send pull requests, they are highly appreciated!
 
 ## License
-MIT License, see license.txt
+Free Public License 1.0.0 / Zero Clause BSD License
+
+https://opensource.org/licenses/FPL-1.0.0
+
+https://tldrlegal.com/license/bsd-0-clause-license

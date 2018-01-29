@@ -1,10 +1,9 @@
 #!/usr/bin/env php
 <?php
 /**
- * @package   PHPT Tests runner
- * @author    Nazar Mokrynskyi <nazar@mokrynskyi.com>
- * @copyright Copyright (c) 2016, Nazar Mokrynskyi
- * @license   MIT License, see license.txt
+ * @package PHPT Tests runner
+ * @author  Nazar Mokrynskyi <nazar@mokrynskyi.com>
+ * @license 0BSD
  */
 /**
  * @param string $text
@@ -318,10 +317,10 @@ if (!$targets || isset($options['h'])) {
 	line(
 		<<<HTML
 <y>Usage:</y>
-  phpt-tests-runner [-h] [-b binary] [files] [directories] 
+  phpt-tests-runner [-h] [-b binary] [files] [directories]
 
 <y>Arguments:</y>
-  <g>-h</g> Print this help message  
+  <g>-h</g> Print this help message
   <g>-b</g> Specify custom PHP binary to be used (current is used by default)
 
 <y>Examples:</y>
@@ -334,10 +333,10 @@ if (!$targets || isset($options['h'])) {
 
 <y>PHPT Format:</y>
   This runner uses modification of PHPT format used by PHP itself, so that it can run many original PHPT tests without any changes.
-  
+
   PHPT test if text file with *.phpt extension.
   Each file contains sections followed by section contents, everything before first section is ignored, you can use it for storing test description.
-  
+
   Required sections are <g>--FILE--</g> and one of [<g>--EXPECT--</g>, <g>--EXPECTF--</g>, <g>--EXPECTREGEX--</g>].
 
 <y>PHPT sections supported:</y>
