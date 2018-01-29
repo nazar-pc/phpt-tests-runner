@@ -58,7 +58,7 @@ Main differences from original PHPT tests files:
 
 ## Requirements:
 
-* PHP 5.6+ or HHVM
+* PHP 7.0+
 
 ## How to use?
 
